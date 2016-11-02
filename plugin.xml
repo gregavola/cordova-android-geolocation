@@ -14,7 +14,6 @@
   <js-module src="www/gplocation.js" name="GPLocation">
     <clobbers target="GPLocation" />
   </js-module>
-  com.google.android.gms:play-services-location:9.8.0
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="GPLocation">
