@@ -1,11 +1,11 @@
 /*global cordova, module*/
 
-module.exports = {
-    getGPLocation: function (options) {
-        cordova.exec(options.success, options.error, "GPLocation", "getGPLocation", []);
-    }
+var exec = require('cordova/exec');
 
-    cancelGPUpdates: function (options) {
-        cordova.exec(options.success, options.error, "GPLocation", "cancelGPUpdates", []);
-    }
+exports.getGPLocation = function (options) {
+    exec(options.success, options.error, "GPLocation", "getGPLocation", []);
+};
+
+exports.cancelGPUpdates = function (options) {
+    exec(options.success, options.error, "GPLocation", "cancelGPUpdates", []);
 };
