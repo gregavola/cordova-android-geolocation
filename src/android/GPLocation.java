@@ -34,7 +34,7 @@ public class GPLocation extends CordovaPlugin {
     public GoogleApiClient mGoogleApiClient;
     public FetchGoogleCoordinates fetchGoogleCordinates = new FetchGoogleCoordinates();
     public String TAG = "CORDOVA-GPS";
-    String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
+    public static String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -74,12 +74,19 @@ public class GPLocation extends CordovaPlugin {
     }
 
     public boolean startGPSerivce() {
-        try {
-            fetchGoogleCordinates.startGPLogging();
-            return true;
-        } catch (Exception error) {
-            Log.e(TAG, error.toString());
-            gpsCallBack.error("Unknown error occurred with GP Location.");
+
+        if (this.hasPermission()) {
+            try {
+                fetchGoogleCordinates.startGPLogging();
+                return true;
+            } catch (Exception error) {
+                Log.e(TAG, error.toString());
+                gpsCallBack.error("Unknown error occurred with GP Location.");
+                return false;
+            }
+        } else {
+            Log.e(TAG, "Invalid Permission");
+            this.requestPermission();
             return false;
         }
     }
@@ -115,7 +122,7 @@ public class GPLocation extends CordovaPlugin {
         }
     }
 
-    public boolean hasPermisssion() {
+    public boolean hasPermission() {
         for(String p : permissions)
         {
             if(!PermissionHelper.hasPermission(this, p))
@@ -128,7 +135,6 @@ public class GPLocation extends CordovaPlugin {
 
     public class FetchGoogleCoordinates implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-
         LocationRequest locationRequest;
         private double lati = 0.0;
         private double longi = 0.0;
@@ -136,10 +142,7 @@ public class GPLocation extends CordovaPlugin {
         private String info = "";
         private boolean didTimeout = true;
         private boolean isConnecting = false;
-        public GPLocation myLocation = new GPLocation();
         public String TAG = "CORDOVA-GPS";
-
-
 
         protected void startGPLogging() {
 
@@ -215,25 +218,17 @@ public class GPLocation extends CordovaPlugin {
             }
         }
 
-
-
-
         public void onConnected(Bundle arg0) {
-            locationRequest = LocationRequest.create();
-            locationRequest.setInterval(10000); // milliseconds
-            locationRequest.setFastestInterval(5000); // the fastest rate in milliseconds at which your app can handle location updates
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-            if (myLocation.hasPermisssion()) {
-                try {
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, (LocationListener) this);
-                } catch (SecurityException ex) {
-                    Log.e(TAG, "GPS exception => " + ex.toString());
-                    gpsCallBack.error("Unable to obtain location.");
-                }
+            try {
+                locationRequest = LocationRequest.create();
+                locationRequest.setInterval(10000); // milliseconds
+                locationRequest.setFastestInterval(5000); // the fastest rate in milliseconds at which your app can handle location updates
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, (LocationListener) this);
+            } catch (SecurityException ex) {
+                Log.e(TAG, "GPS exception => " + ex.toString());
+                gpsCallBack.error("Unable to obtain location.");
             }
-
-
         }
 
         public void onLocationChanged(android.location.Location location) {
