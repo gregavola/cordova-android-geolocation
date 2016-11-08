@@ -204,13 +204,6 @@ public class GPLocation extends CordovaPlugin {
                         gpsCallBack.error("A request for location has timed out after 10 seconds.");
                     }
                 } else {
-                    try {
-                        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener) this);
-                    } catch (Exception ex) {
-                        Log.e(TAG, "Ex => " + ex.toString());
-                    }
-
-
                     Log.e(TAG, "We can't cancel the updates because no updates have been made");
                 }
             } else {
