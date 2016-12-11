@@ -32,9 +32,10 @@ import org.json.JSONObject;
 public class GPLocation extends CordovaPlugin {
     public CallbackContext gpsCallBack;
     public GoogleApiClient mGoogleApiClient;
-    public FetchGoogleCoordinates fetchGoogleCordinates = new FetchGoogleCoordinates();
+    private GPLocation gpLocation;
+    public FetchGoogleCoordinates fetchGoogleCordinates = new FetchGoogleCoordinates(gpLocation);
     public String TAG = "CORDOVA-GPS";
-    public static String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
+    String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -74,19 +75,21 @@ public class GPLocation extends CordovaPlugin {
     }
 
     public boolean startGPSerivce() {
+        try {
 
-        if (this.hasPermission()) {
-            try {
+            if (this.hasPermisssion()) {
                 fetchGoogleCordinates.startGPLogging();
                 return true;
-            } catch (Exception error) {
-                Log.e(TAG, error.toString());
-                gpsCallBack.error("Unknown error occurred with GP Location.");
+            } else {
+                Log.e(TAG, "Permission Deined");
+                gpsCallBack.error("You have rejected permissions to your location");
                 return false;
             }
-        } else {
-            Log.e(TAG, "Invalid Permission");
-            this.requestPermission();
+
+
+        } catch (Exception error) {
+            Log.e(TAG, error.toString());
+            gpsCallBack.error("Unknown error occurred with GP Location.");
             return false;
         }
     }
@@ -122,7 +125,7 @@ public class GPLocation extends CordovaPlugin {
         }
     }
 
-    public boolean hasPermission() {
+    public boolean hasPermisssion() {
         for(String p : permissions)
         {
             if(!PermissionHelper.hasPermission(this, p))
@@ -135,6 +138,7 @@ public class GPLocation extends CordovaPlugin {
 
     public class FetchGoogleCoordinates implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+
         LocationRequest locationRequest;
         private double lati = 0.0;
         private double longi = 0.0;
@@ -143,6 +147,12 @@ public class GPLocation extends CordovaPlugin {
         private boolean didTimeout = true;
         private boolean isConnecting = false;
         public String TAG = "CORDOVA-GPS";
+        GPLocation parentClass;
+
+        FetchGoogleCoordinates(GPLocation p)   //Constructor
+        {
+            this.parentClass = p;
+        }
 
         protected void startGPLogging() {
 
@@ -158,6 +168,8 @@ public class GPLocation extends CordovaPlugin {
                 gpsCallBack.error("Your GPS/Network Location has been disabled in your Settings. Please turn on Location Services to enable this feature.");
             }
             else {
+
+                Log.e(TAG, "We are here");
 
                 GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
                 int resultCode = apiAvailability.isGooglePlayServicesAvailable(cordova.getActivity());
@@ -204,6 +216,13 @@ public class GPLocation extends CordovaPlugin {
                         gpsCallBack.error("A request for location has timed out after 10 seconds.");
                     }
                 } else {
+                    try {
+                        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener) this);
+                    } catch (Exception ex) {
+                        Log.e(TAG, "Ex => " + ex.toString());
+                    }
+
+
                     Log.e(TAG, "We can't cancel the updates because no updates have been made");
                 }
             } else {
@@ -211,12 +230,16 @@ public class GPLocation extends CordovaPlugin {
             }
         }
 
+
+
+
         public void onConnected(Bundle arg0) {
+            locationRequest = LocationRequest.create();
+            locationRequest.setInterval(10000); // milliseconds
+            locationRequest.setFastestInterval(5000); // the fastest rate in milliseconds at which your app can handle location updates
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
             try {
-                locationRequest = LocationRequest.create();
-                locationRequest.setInterval(10000); // milliseconds
-                locationRequest.setFastestInterval(5000); // the fastest rate in milliseconds at which your app can handle location updates
-                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                 LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, (LocationListener) this);
             } catch (SecurityException ex) {
                 Log.e(TAG, "GPS exception => " + ex.toString());
