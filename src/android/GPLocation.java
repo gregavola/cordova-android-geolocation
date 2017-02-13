@@ -82,8 +82,8 @@ public class GPLocation extends CordovaPlugin {
                 return true;
             } else {
                 Log.e(TAG, "Permission Deined");
-                gpsCallBack.error("You have rejected permissions to your location");
-                return false;
+                this.requestPermission();
+                return true;
             }
 
 
