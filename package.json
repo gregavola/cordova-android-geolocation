@@ -1,6 +1,6 @@
 {
 "name": "cordova-android-geolocation",
-"version": "1.0.0,
+"version": "1.0.0",
 "description": "Native Cordova Android Location",
 "main": "index.js",
 "repository": {
@@ -13,5 +13,5 @@
 "keywords": [
 "cordova"
 ],
-"author": "Greg Avola",
+"author": "Greg Avola"
 }
