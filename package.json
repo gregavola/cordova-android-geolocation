@@ -1,17 +1,17 @@
 {
-"name": "cordova-android-geolocation",
-"version": "1.0.0",
-"description": "Native Cordova Android Location",
-"main": "index.js",
-"repository": {
-"type": "git",
-"url": "https://github.com/gregavola/cordova-android-geolocation"
-},
-"bugs": {
-"url": "https://github.com/gregavola/cordova-android-geolocation/issues"
-},
-"keywords": [
-"cordova"
-],
-"author": "Greg Avola"
+	"name": "cordova-android-geolocation",
+	"version": "1.0.3",
+	"description": "Native Cordova Android Location",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/gregavola/cordova-android-geolocation"
+	},
+	"bugs": {
+		"url": "https://github.com/gregavola/cordova-android-geolocation/issues"
+	},
+	"keywords": [
+		"cordova"
+	],
+	"author": "Greg Avola"
 }
